@@ -1,0 +1,11 @@
+IndentWidth: 4
+ColumnLimit: 120
+PointerAlignment: Left
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+SpaceAfterCStyleCast: true
+SpaceInEmptyBlock: true
+IndentCaseLabels: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+SpaceBeforeCpp11BracedList: true
