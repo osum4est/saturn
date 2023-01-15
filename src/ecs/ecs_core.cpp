@@ -1,4 +1,4 @@
-#include "saturn/ecs/ecs.hpp"
+#include "saturn/ecs/ecs_core.hpp"
 
 namespace saturn::_ {
 

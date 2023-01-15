@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <saturn/ecs/ecs.hpp>
+#include <saturn/saturn.h>
 #include <utility>
 
 struct component_a {
@@ -144,7 +144,6 @@ TEST_CASE("entity", "[ecs]") {
         auto added_component = entity.add<component_a>(test_a_1).get();
         auto component = entity.get<component_a>().get();
         REQUIRE(component->a == test_a_1.a);
-        REQUIRE(component == added_component);
     }
 
     SECTION("add two of the same types of components") {

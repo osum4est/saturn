@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <saturn/ecs/ecs.hpp>
+#include <saturn/saturn.h>
 
 TEST_CASE("universe", "[ecs]") {
     auto universe = saturn::universe::create();
