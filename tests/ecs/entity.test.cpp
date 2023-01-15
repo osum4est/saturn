@@ -30,18 +30,14 @@ struct component_complex {
 };
 
 TEST_CASE("entity", "[ecs]") {
-    auto universe = saturn::universe::create().get();
-    auto world = universe->create_world().get();
-    auto entity = world->create_entity().get();
+    auto universe = saturn::universe::create();
+    auto world = universe->create_world();
+    auto entity = world->create_entity();
 
     component_a test_a_1(1);
     component_a test_a_2(2);
     component_b test_b_1(3);
     component_complex test_complex_1 = {"hello", {1, 2, 3}, 100, {1, 2, 3, 4, 5}};
-
-    SECTION("has a missing component") {
-        REQUIRE(!entity.has<component_a>());
-    }
 
     SECTION("add a component") {
         auto component = entity.add<component_a>().get();
@@ -51,6 +47,22 @@ TEST_CASE("entity", "[ecs]") {
     SECTION("add a component with arguments") {
         auto component = entity.add<component_a>(100).get();
         REQUIRE(component->a == 100);
+    }
+
+    SECTION("add a pointer component") {
+        auto component = entity.add<component_a*>().get();
+        REQUIRE(*component == nullptr);
+    }
+
+    SECTION("add a pointer component with arguments") {
+        auto ptr = new component_a(100);
+        auto component = *entity.add<component_a*>(ptr).get();
+        REQUIRE(component == ptr);
+
+        // Even if the entity archetype changes, the pointer should still be the same
+        entity.add<component_b>();
+        REQUIRE(component == ptr);
+        delete ptr;
     }
 
     SECTION("add a complex component") {
@@ -86,8 +98,18 @@ TEST_CASE("entity", "[ecs]") {
         REQUIRE(component->a == test_a_1.a);
     }
 
+    SECTION("set a pointer component") {
+        auto ptr = new component_a(test_a_1);
+        auto component = *entity.set<component_a*>(ptr).get();
+        REQUIRE(component == ptr);
+
+        // Even if the entity archetype changes, the pointer should still be the same
+        entity.add<component_b>();
+        REQUIRE(component == ptr);
+        delete ptr;
+    }
+
     SECTION("set a complex component") {
-        auto size = sizeof(component_complex);
         auto component = entity.set<component_complex>(test_complex_1).get();
         REQUIRE(component->str == test_complex_1.str);
         REQUIRE(component->vec == test_complex_1.vec);
@@ -109,9 +131,20 @@ TEST_CASE("entity", "[ecs]") {
         REQUIRE(entity.has<component_a>());
     }
 
+    SECTION("has a missing component") {
+        REQUIRE(!entity.has<component_a>());
+    }
+
     SECTION("has a missing component after adding a component") {
         entity.add<component_a>().get();
         REQUIRE(!entity.has<component_b>());
+    }
+
+    SECTION("get a component") {
+        auto added_component = entity.add<component_a>(test_a_1).get();
+        auto component = entity.get<component_a>().get();
+        REQUIRE(component->a == test_a_1.a);
+        REQUIRE(component == added_component);
     }
 
     SECTION("add two of the same types of components") {
@@ -236,17 +269,34 @@ TEST_CASE("entity", "[ecs]") {
         entity.remove<component_a>();
         REQUIRE_THROWS(*component = test_a_2);
     }
+
+    SECTION("set value in component on destroyed entity") {
+        auto component = entity.set<component_a>(test_a_1).get();
+        world->destroy_entity(entity);
+        REQUIRE_THROWS(component->a = 5);
+    }
+
+    SECTION("assign to component on destroyed entity") {
+        auto component = entity.set<component_a>(test_a_1).get();
+        world->destroy_entity(entity);
+        REQUIRE_THROWS(*component = test_a_2);
+    }
 }
 
 TEST_CASE("multiple entities", "[ecs]") {
-    auto universe = saturn::universe::create().get();
-    auto world = universe->create_world().get();
+    auto universe = saturn::universe::create();
+    auto world = universe->create_world();
     std::vector<saturn::entity> entities = {};
     for (int i = 0; i < 100; i++)
-        entities.push_back(world->create_entity().get());
+        entities.push_back(world->create_entity());
 
     component_a test_a_1(1);
     component_complex test_complex_1 = {};
+
+    SECTION("compare entities") {
+        REQUIRE(entities[0] == entities[0]);
+        REQUIRE(entities[0] != entities[1]);
+    }
 
     SECTION("add components to each entity") {
         for (auto& entity : entities) {
@@ -272,7 +322,7 @@ TEST_CASE("multiple entities", "[ecs]") {
         }
     }
 
-    SECTION("add components with different data to each entity") {
+    SECTION("add components with unique data to each entity") {
         int i = 0;
         for (auto& entity : entities) {
             entity.add<component_a>(i).get();
@@ -288,7 +338,7 @@ TEST_CASE("multiple entities", "[ecs]") {
         }
     }
 
-    SECTION("set components with different data on each entity") {
+    SECTION("set components with unique data on each entity") {
         int i = 0;
         for (auto& entity : entities) {
             entity.set<component_a>(component_a(i)).get();
@@ -319,7 +369,7 @@ TEST_CASE("multiple entities", "[ecs]") {
         }
     }
 
-    SECTION("remove single component from each entity") {
+    SECTION("remove component_a from each entity") {
         for (auto& entity : entities) {
             entity.add<component_a>().get();
             entity.add<component_complex>().get();
@@ -334,7 +384,7 @@ TEST_CASE("multiple entities", "[ecs]") {
         }
     }
 
-    SECTION("remove single component from each entity") {
+    SECTION("remove complex_component from each entity") {
         for (auto& entity : entities) {
             entity.add<component_a>(3).get();
             entity.add<component_complex>().get();
@@ -351,9 +401,10 @@ TEST_CASE("multiple entities", "[ecs]") {
 }
 
 TEST_CASE("destroyed entity", "[ecs]") {
-    auto universe = saturn::universe::create().get();
-    auto world = universe->create_world().get();
-    auto entity = world->create_entity().get();
+    auto universe = saturn::universe::create();
+    auto world = universe->create_world();
+    auto entity = world->create_entity();
+    entity.add<component_a>();
     world->destroy_entity(entity);
 
     SECTION("add component") {
@@ -374,5 +425,46 @@ TEST_CASE("destroyed entity", "[ecs]") {
 
     SECTION("has component") {
         REQUIRE(!entity.has<component_a>());
+    }
+}
+
+TEST_CASE("destroyed world", "[ecs]") {
+    auto universe = saturn::universe::create();
+    auto world = universe->create_world();
+    auto entity = world->create_entity();
+    auto component = entity.add<component_a>().get();
+    world.reset();
+
+    SECTION("check if entity is alive") {
+        REQUIRE(!entity.alive());
+        REQUIRE(entity.dead());
+    }
+
+    SECTION("add component") {
+        REQUIRE(entity.add<component_a>(3).is_err());
+    }
+
+    SECTION("set component") {
+        REQUIRE(entity.set<component_a>({}).is_err());
+    }
+
+    SECTION("remove component") {
+        REQUIRE_NOTHROW(entity.remove<component_a>());
+    }
+
+    SECTION("get component") {
+        REQUIRE(entity.get<component_a>().is_err());
+    }
+
+    SECTION("has component") {
+        REQUIRE(!entity.has<component_a>());
+    }
+
+    SECTION("set value in component") {
+        REQUIRE_THROWS(component->a == 0);
+    }
+
+    SECTION("get value in component") {
+        REQUIRE_THROWS(*component);
     }
 }

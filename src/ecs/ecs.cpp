@@ -34,6 +34,10 @@ component_id create_component_id(array_index bit_index) {
     return (component_id) bit_index;
 }
 
+bool archetype_mask_matches(archetype_mask mask, archetype_mask other) {
+    return (mask & other) == other;
+}
+
 bool archetype_mask_has_component(archetype_mask mask, component_id component) {
     return mask & ((archetype_mask) 1 << component_id_bit_index(component));
 }
@@ -46,7 +50,7 @@ archetype_mask archetype_mask_remove_component(archetype_mask mask, component_id
     return mask & ~((archetype_mask) 1 << component_id_bit_index(component));
 }
 
-std::vector<size_t> ecs_data::component_sizes = {};
-component_id ecs_data::_next_component_id = 0;
+std::vector<size_t> ecs_core::component_sizes = {};
+component_id ecs_core::_next_component_id = 0;
 
 } // namespace saturn::_

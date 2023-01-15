@@ -2,9 +2,9 @@
 #include <saturn/ecs/ecs.hpp>
 
 TEST_CASE("universe", "[ecs]") {
-    auto universe = saturn::universe::create().get();
+    auto universe = saturn::universe::create();
 
     SECTION("create world") {
-        auto world = universe->create_world().get();
+        auto world = universe->create_world();
     }
 }
