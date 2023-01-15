@@ -121,6 +121,24 @@ TEST_CASE("entity", "[ecs]") {
         REQUIRE(component->c.b == test_complex_1.c.b);
     }
 
+    SECTION("set a complex component by value") {
+        auto component = entity
+                             .set<component_complex>(
+                                 component_complex {"hello", std::vector<int> {1, 2, 3}, 100, child {1, 2, 3, 4, 5}})
+                             .get();
+        REQUIRE(component->str == "hello");
+        REQUIRE(component->vec.size() == 3);
+        REQUIRE(component->vec[0] == 1);
+        REQUIRE(component->vec[1] == 2);
+        REQUIRE(component->vec[2] == 3);
+        REQUIRE(component->num == 100);
+        REQUIRE(component->c.x == 1);
+        REQUIRE(component->c.y == 2);
+        REQUIRE(component->c.r == 3);
+        REQUIRE(component->c.g == 4);
+        REQUIRE(component->c.b == 5);
+    }
+
     SECTION("has a component that was added") {
         entity.add<component_a>().get();
         REQUIRE(entity.has<component_a>());

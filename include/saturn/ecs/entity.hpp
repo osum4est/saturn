@@ -80,7 +80,7 @@ class entity {
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_const_v<T>, result::val<component<T>>> set(const T& component) {
+    std::enable_if_t<!std::is_const_v<T>, result::val<component<T>>> set(T&& component) {
         if (!alive()) return result::err("Entity is dead");
 
         _::entity_archetype& entity_archetype = _core->entity_archetypes[_::entity_id_index(_id)];
@@ -88,12 +88,21 @@ class entity {
 
         component_id component_id = _core->lookup_component_id<T>();
         archetype_mask new_mask = _::archetype_mask_add_component(old_archetype.mask, component_id);
-        if (old_archetype.mask != new_mask)
+        if (old_archetype.mask != new_mask) {
             _core->move_entity_to_archetype(_id, _core->get_or_create_archetype(new_mask));
+            T* component_ptr = (T*) _core->entity_archetype_component(entity_archetype, component_id);
+            new (component_ptr) T(std::forward<T>(component));
+        } else {
+            T* component_ptr = (T*) _core->entity_archetype_component(entity_archetype, component_id);
+            *component_ptr = std::forward<T>(component);
+        }
 
-        T* component_ptr = (T*) _core->entity_archetype_component(entity_archetype, component_id);
-        std::memcpy(component_ptr, &component, sizeof(T));
         return result::ok(::saturn::component<T>(component_id, _id, _core));
+    }
+
+    template <typename T>
+    std::enable_if_t<!std::is_const_v<T>, result::val<component<T>>> set(const T& component) {
+        return set<T>(T(component));
     }
 
     template <typename T>
