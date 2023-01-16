@@ -50,7 +50,9 @@ archetype_mask archetype_mask_remove_component(archetype_mask mask, component_id
     return mask & ~((archetype_mask) 1 << component_id_bit_index(component));
 }
 
+stage_id ecs_core::next_stage_id = 0;
+system_id ecs_core::next_system_id = 0;
 std::vector<size_t> ecs_core::component_sizes = {};
-component_id ecs_core::_next_component_id = 0;
+component_id ecs_core::next_component_id = 0;
 
 } // namespace saturn::_

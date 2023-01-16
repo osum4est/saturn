@@ -133,5 +133,12 @@ TEST_CASE("query", "[ecs]") {
                 REQUIRE(entity.has<test_component_b>());
             }
         }
+
+        SECTION("query for destroyed entities") {
+            for (auto& [_, entity] : entities)
+                world->destroy_entity(entity);
+            auto query = world->create_query();
+            REQUIRE(query.count() == 0);
+        }
     }
 }

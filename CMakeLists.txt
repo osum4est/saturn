@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_library(${TARGET_NAME}
         include/saturn/ecs/ecs_core.hpp
         include/saturn/saturn.h
-        src/ecs/ecs_core.cpp include/saturn/ecs/entity.hpp include/saturn/ecs/ecs.h include/saturn/ecs/universe.hpp include/saturn/ecs/world.hpp include/saturn/ecs/query.hpp include/saturn/ecs/utils/component_pool.hpp include/saturn/ecs/ecs_types.h include/saturn/ecs/component.hpp)
+        src/ecs/ecs_core.cpp include/saturn/ecs/entity.hpp include/saturn/ecs/ecs.h include/saturn/ecs/universe.hpp include/saturn/ecs/world.hpp include/saturn/ecs/query.hpp include/saturn/ecs/utils/component_pool.hpp include/saturn/ecs/ecs_types.h include/saturn/ecs/component.hpp include/saturn/ecs/system.hpp include/saturn/ecs/stage.h include/saturn/ecs/trait_helpers.h)
 
 target_include_directories(${TARGET_NAME} PUBLIC include)
 

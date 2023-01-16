@@ -39,11 +39,13 @@ struct entity_archetype {
 };
 
 struct ecs_core {
+    // Archetypes
     std::vector<archetype> archetypes = {};
     std::vector<std::vector<array_index>> archetype_free_entities = {};
     std::unordered_map<archetype_mask, archetype_id> archetypes_by_mask = {};
     std::unordered_map<archetype_component_id, array_index> archetype_component_indices = {};
 
+    // Entities
     std::vector<entity_id> entities = {};
     std::vector<array_index> free_entities = {};
     std::vector<entity_archetype> entity_archetypes = {};
@@ -59,7 +61,17 @@ struct ecs_core {
         empty_archetype_index = archetype_id_index(empty_archetype_id);
     }
 
-    static component_id _next_component_id;
+    static stage_id next_stage_id;
+    static stage_id create_stage_id() {
+        return next_stage_id++;
+    }
+
+    static system_id next_system_id;
+    static system_id create_system_id() {
+        return next_system_id++;
+    }
+
+    static component_id next_component_id;
     template <typename T>
     std::enable_if_t<!std::is_const_v<T>, component_id> lookup_component_id() {
         return lookup_component_id<const T>();
@@ -73,7 +85,7 @@ struct ecs_core {
         else {
             initialized = true;
             component_sizes.push_back(sizeof(T));
-            return id = _next_component_id++;
+            return id = next_component_id++;
         }
     }
 
