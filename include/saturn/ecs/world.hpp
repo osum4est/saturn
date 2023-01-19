@@ -25,6 +25,7 @@ class world {
     std::chrono::high_resolution_clock::time_point _last_update_time = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point _current_update_time = std::chrono::high_resolution_clock::now();
 
+    // TODO: Make private
   public:
     world() : _core(std::make_unique<_::ecs_core>()) {
         _systems_by_stage[stages::pre_update] = {};

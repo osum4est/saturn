@@ -2,10 +2,15 @@
 #define WPEX_SATURN_H
 
 #include "saturn/ecs/ecs.h"
+#include "saturn/window/window.h"
 
-enum class saturn_graphics_backend {
+namespace saturn {
+
+enum class graphics_backend {
     vulkan,
     metal,
 };
+
+} // namespace saturn
 
 #endif

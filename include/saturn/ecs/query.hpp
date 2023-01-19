@@ -5,6 +5,7 @@
 
 namespace saturn {
 
+// TODO: Could cache which archetypes match the query and only iterate over those
 template <typename... T>
 class query_iterator {
     using iterator_concept [[maybe_unused]] = std::forward_iterator_tag;
